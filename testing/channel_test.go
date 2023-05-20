@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -279,4 +280,43 @@ func TestMap(t *testing.T) {
 		fmt.Println(key, ":", value)
 		return true
 	})
+}
+
+func TestAtomic(t *testing.T) {
+	var x int64 = 0
+	var group = sync.WaitGroup{}
+	for i := 1; i <= 1000; i++ {
+		go func() {
+			// defer group.Done()
+			group.Add(1)
+			for j := 1; j <= 100; j++ {
+				// x = x + 1
+				atomic.AddInt64(&x, 1)
+			}
+			group.Done()
+		}()
+	}
+	group.Wait()
+	fmt.Println("counter = ", x)
+}
+
+func TestAfter(t *testing.T) {
+	channel := time.After(1 * time.Second)
+	fmt.Println(time.Now())
+
+	tick := <-channel
+	fmt.Println(tick)
+}
+
+func TestAfterFunction(t *testing.T) {
+	group := sync.WaitGroup{}
+	group.Add(1)
+
+	time.AfterFunc(5*time.Second, func() {
+		fmt.Println(time.Now())
+	})
+	fmt.Println(time.Now())
+
+	group.Wait()
+
 }

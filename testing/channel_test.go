@@ -213,3 +213,47 @@ func TestWaitGroup(t *testing.T) {
 	group.Wait()
 	fmt.Println("Complete")
 }
+
+var counter = 0
+
+func OnlyOnce() {
+	counter++
+}
+
+func TestOnec(t *testing.T) {
+	once := sync.Once{}
+	group := sync.WaitGroup{}
+
+	for i := 0; i < 100; i++ {
+		go func() {
+			group.Add(1)
+			once.Do(OnlyOnce)
+			group.Done()
+		}()
+	}
+
+	group.Wait()
+	fmt.Println(counter)
+}
+
+func TestPool(t *testing.T) {
+	pool := sync.Pool{
+		New: func() interface{} {
+			return "New"
+		},
+	}
+
+	pool.Put("Tangguh")
+	pool.Put("Riyadi")
+
+	for i := 0; i < 10; i++ {
+		go func() {
+			data := pool.Get()
+			fmt.Println(data)
+			pool.Put(data)
+		}()
+	}
+
+	time.Sleep(3 * time.Second)
+	fmt.Println("Done")
+}

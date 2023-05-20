@@ -193,3 +193,23 @@ func TestTransfer(t *testing.T) {
 	fmt.Println("saldo user1: ", user1.Balance)
 	fmt.Println("saldo user2: ", user2.Balance)
 }
+
+func RunAsync(group *sync.WaitGroup) {
+	defer group.Done()
+
+	group.Add(1)
+
+	fmt.Println("Hello")
+	time.Sleep(1 * time.Second)
+}
+
+func TestWaitGroup(t *testing.T) {
+	group := &sync.WaitGroup{}
+
+	for i := 0; i < 100; i++ {
+		go RunAsync(group)
+	}
+
+	group.Wait()
+	fmt.Println("Complete")
+}

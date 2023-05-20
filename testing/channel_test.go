@@ -3,6 +3,7 @@ package testing
 import (
 	"fmt"
 	"strconv"
+	"sync"
 	"testing"
 	"time"
 )
@@ -87,15 +88,17 @@ func TestRangeChannel(t *testing.T) {
 
 func TestRaceCondition(t *testing.T) {
 	var x = 0
-
+	var mutex sync.Mutex
 	for i := 0; i < 1000; i++ {
 		go func() {
 			for j := 0; j < 100; j++ {
+				mutex.Lock()
 				x = x + 1
+				mutex.Unlock()
 			}
 		}()
 	}
-	fmt.Println(x)
-	time.Sleep(5 * time.Second)
 
+	time.Sleep(5 * time.Second)
+	fmt.Println(x)
 }
